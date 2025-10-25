@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Citas</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --success-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --light-color: #ecf0f1;
+            --dark-color: #2c3e50;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 20px 0;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 20px;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav ul li a:hover, nav ul li a.active {
+            background-color: rgba(255,255,255,0.2);
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .sidebar {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .sidebar h3 {
+            margin-bottom: 15px;
+            color: var(--dark-color);
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar ul li {
+            margin-bottom: 10px;
+        }
+        
+        .sidebar ul li a {
+            color: var(--dark-color);
+            text-decoration: none;
+            display: block;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: all 0.3s;
+        }
+        
+        .sidebar ul li a:hover, .sidebar ul li a.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        
+        table th, table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        
+        table th {
+            background-color: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        table tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+        
+        .alert {
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: rgba(46, 204, 113, 0.1);
+            border: 1px solid var(--success-color);
+            color: var(--success-color);
+        }
+        
+        .alert-danger {
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .close:hover {
+            color: #333;
+        }
+        
+        .modal-footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                display: none;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            nav ul {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">Gestor de Citas</div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="active" data-section="citas">Citas</a></li>
+                        <li><a href="#" data-section="clientes">Clientes</a></li>
+                        <li><a href="#" data-section="profesionales">Profesionales</a></li>
+                        <li><a href="#" data-section="servicios">Servicios</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="main-content">
+            <aside class="sidebar">
+                <h3>Gestión</h3>
+                <ul>
+                    <li><a href="#" class="active" data-action="list" data-entity="citas">Listar Citas</a></li>
+                    <li><a href="#" data-action="create" data-entity="citas">Nueva Cita</a></li>
+                    <li><a href="#" data-action="list" data-entity="clientes">Listar Clientes</a></li>
+                    <li><a href="#" data-action="create" data-entity="clientes">Nuevo Cliente</a></li>
+                    <li><a href="#" data-action="list" data-entity="profesionales">Listar Profesionales</a></li>
+                    <li><a href="#" data-action="create" data-entity="profesionales">Nuevo Profesional</a></li>
+                    <li><a href="#" data-action="list" data-entity="servicios">Listar Servicios</a></li>
+                    <li><a href="#" data-action="create" data-entity="servicios">Nuevo Servicio</a></li>
+                </ul>
+            </aside>
+            
+            <main class="content">
+                <div class="content-header">
+                    <h2 id="content-title">Gestión de Citas</h2>
+                    <button id="btn-new" class="btn btn-primary">Nueva Cita</button>
+                </div>
+                
+                <div id="alert-container"></div>
+                
+                <div id="loading" class="loading hidden">
+                    <div class="spinner"></div>
+                    <p>Cargando...</p>
+                </div>
+                
+                <div id="list-container">
+                </div>
+                
+                <div id="form-container" class="hidden">
+                </div>
+            </main>
+        </div>
+    </div>
+    
+    <div id="confirm-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirmar Eliminación</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p>¿Está seguro de que desea eliminar este elemento? Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="confirm-cancel" class="btn">Cancelar</button>
+                <button id="confirm-delete" class="btn btn-danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE_URL = 'http://localhost:5176/api';
+        
+        // Estado de la aplicación
+        let currentSection = 'citas';
+        let currentAction = 'list';
+        let currentEntity = 'citas';
+        let items = [];
+        let itemToDelete = null;
+        
+        // Elementos del DOM
+        const contentTitle = document.getElementById('content-title');
+        const btnNew = document.getElementById('btn-new');
+        const alertContainer = document.getElementById('alert-container');
+        const loading = document.getElementById('loading');
+        const listContainer = document.getElementById('list-container');
+        const formContainer = document.getElementById('form-container');
+        const confirmModal = document.getElementById('confirm-modal');
+        const closeModal = document.querySelector('.close');
+        const confirmCancel = document.getElementById('confirm-cancel');
+        const confirmDelete = document.getElementById('confirm-delete');
+        
+        // Navegación
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector('nav a.active').classList.remove('active');
+                this.classList.add('active');
+                
+                currentSection = this.getAttribute('data-section');
+                loadSection(currentSection);
+            });
+        });
+        
+        // Navegación lateral
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector('.sidebar a.active').classList.remove('active');
+                this.classList.add('active');
+                
+                currentAction = this.getAttribute('data-action');
+                currentEntity = this.getAttribute('data-entity');
+                loadContent(currentEntity, currentAction);
+            });
+        });
+        
+        // Botón nuevo
+        btnNew.addEventListener('click', function() {
+            currentAction = 'create';
+            loadContent(currentEntity, 'create');
+        });
+        
+        // Modal de confirmación
+        closeModal.addEventListener('click', function() {
+            confirmModal.classList.add('hidden');
+        });
+        
+        confirmCancel.addEventListener('click', function() {
+            confirmModal.classList.add('hidden');
+        });
+        
+        confirmDelete.addEventListener('click', function() {
+            if (itemToDelete) {
+                deleteItem(itemToDelete.entity, itemToDelete.id);
+            }
+            confirmModal.classList.add('hidden');
+        });
+        
+        // Funciones de la aplicación
+        function loadSection(section) {
+            currentSection = section;
+            currentEntity = section;
+            currentAction = 'list';
+            
+            // Actualizar navegación lateral
+            document.querySelectorAll('.sidebar a').forEach(link => {
+                if (link.getAttribute('data-entity') === section) {
+                    if (link.getAttribute('data-action') === 'list') {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                }
+            });
+            
+            loadContent(currentEntity, currentAction);
+        }
+        
+        function loadContent(entity, action) {
+            currentEntity = entity;
+            currentAction = action;
+            
+            // Actualizar título
+            const titles = {
+                'citas': 'Citas',
+                'clientes': 'Clientes',
+                'profesionales': 'Profesionales',
+                'servicios': 'Servicios'
+            };
+            
+            const actions = {
+                'list': 'Lista de ',
+                'create': 'Nuevo ',
+                'edit': 'Editar '
+            };
+            
+            contentTitle.textContent = actions[action] + titles[entity];
+            
+            // Mostrar/ocultar elementos según la acción
+            if (action === 'list') {
+                listContainer.classList.remove('hidden');
+                formContainer.classList.add('hidden');
+                btnNew.textContent = `Nuev${entity === 'citas' || entity === 'servicios' ? 'a' : 'o'} ${titles[entity].slice(0, -1)}`;
+                loadItems(entity);
+            } else {
+                listContainer.classList.add('hidden');
+                formContainer.classList.remove('hidden');
+                btnNew.textContent = `Volver a la lista`;
+                showForm(entity, action);
+            }
+        }
+        
+        function showAlert(message, type) {
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+            
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+        
+        function showLoading() {
+            loading.classList.remove('hidden');
+        }
+        
+        function hideLoading() {
+            loading.classList.add('hidden');
+        }
+        
+        // Funciones para interactuar con la API
+        async function fetchData(endpoint) {
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE_URL}/${endpoint}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                return data;
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                showAlert(`Error al cargar los datos: ${error.message}`, 'danger');
+                return null;
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function postData(endpoint, data) {
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                const result = await response.json();
+                showAlert('Elemento creado correctamente', 'success');
+                return result;
+            } catch (error) {
+                console.error('Error posting data:', error);
+                showAlert(`Error al crear el elemento: ${error.message}`, 'danger');
+                return null;
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function putData(endpoint, data) {
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                showAlert('Elemento actualizado correctamente', 'success');
+                return true;
+            } catch (error) {
+                console.error('Error updating data:', error);
+                showAlert(`Error al actualizar el elemento: ${error.message}`, 'danger');
+                return false;
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        async function deleteData(endpoint) {
+            try {
+                showLoading();
+                const response = await fetch(`${API_BASE_URL}/${endpoint}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${response.statusText}`);
+                }
+                
+                showAlert('Elemento eliminado correctamente', 'success');
+                return true;
+            } catch (error) {
+                console.error('Error deleting data:', error);
+                showAlert(`Error al eliminar el elemento: ${error.message}`, 'danger');
+                return false;
+            } finally {
+                hideLoading();
+            }
+        }
+        
+        // Funciones para cargar y mostrar datos
+        async function loadItems(entity) {
+            const data = await fetchData(entity);
+            
+            if (data) {
+                items = data;
+                renderItems(entity, data);
+            }
+        }
+        
+        function renderItems(entity, items) {
+            if (items.length === 0) {
+                listContainer.innerHTML = '<p>No hay elementos para mostrar.</p>';
+                return;
+            }
+            
+            let tableHTML = `
+                <table>
+                    <thead>
+                        <tr>
+            `;
+            
+            // Encabezados de la tabla según la entidad
+            if (entity === 'citas') {
+                tableHTML += `
+                    <th>ID</th>
+                    <th>Cliente</th>
+                    <th>Profesional</th>
+                    <th>Servicio</th>
+                    <th>Fecha</th>
+                    <th>Hora</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                `;
+            } else if (entity === 'clientes') {
+                tableHTML += `
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                `;
+            } else if (entity === 'profesionales') {
+                tableHTML += `
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Especialidad</th>
+                    <th>Email</th>
+                    <th>Teléfono</th>
+                    <th>Acciones</th>
+                `;
+            } else if (entity === 'servicios') {
+                tableHTML += `
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Descripción</th>
+                    <th>Precio</th>
+                    <th>Duración</th>
+                    <th>Acciones</th>
+                `;
+            }
+            
+            tableHTML += `
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            // Filas de la tabla
+            items.forEach(item => {
+                tableHTML += '<tr>';
+                
+                if (entity === 'citas') {
+                    tableHTML += `
+                        <td>${item.id || ''}</td>
+                        <td>${item.clienteNombre || ''}</td>
+                        <td>${item.profesionalNombre || ''}</td>
+                        <td>${item.servicioNombre || ''}</td>
+                        <td>${item.fecha ? new Date(item.fecha).toLocaleDateString() : ''}</td>
+                        <td>${item.hora || ''}</td>
+                        <td>${item.estado || ''}</td>
+                    `;
+                } else if (entity === 'clientes') {
+                    tableHTML += `
+                        <td>${item.id || ''}</td>
+                        <td>${item.nombre || ''} ${item.apellido || ''}</td>
+                        <td>${item.email || ''}</td>
+                        <td>${item.telefono || ''}</td>
+                    `;
+                } else if (entity === 'profesionales') {
+                    tableHTML += `
+                        <td>${item.id || ''}</td>
+                        <td>${item.nombre || ''} ${item.apellido || ''}</td>
+                        <td>${item.especialidad || ''}</td>
+                        <td>${item.email || ''}</td>
+                        <td>${item.telefono || ''}</td>
+                    `;
+                } else if (entity === 'servicios') {
+                    tableHTML += `
+                        <td>${item.id || ''}</td>
+                        <td>${item.nombre || ''}</td>
+                        <td>${item.descripcion || ''}</td>
+                        <td>${item.precio || ''}</td>
+                        <td>${item.duracion || ''} min</td>
+                    `;
+                }
+                
+                tableHTML += `
+                    <td>
+                        <button class="btn btn-warning btn-edit" data-id="${item.id}">Editar</button>
+                        <button class="btn btn-danger btn-delete" data-id="${item.id}">Eliminar</button>
+                    </td>
+                </tr>
+                `;
+            });
+            
+            tableHTML += `
+                    </tbody>
+                </table>
+            `;
+            
+            listContainer.innerHTML = tableHTML;
+            
+            // Agregar event listeners a los botones
+            document.querySelectorAll('.btn-edit').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    editItem(entity, id);
+                });
+            });
+            
+            document.querySelectorAll('.btn-delete').forEach(button => {
+                button.addEventListener('click', function() {
+                    const id = this.getAttribute('data-id');
+                    confirmDeleteItem(entity, id);
+                });
+            });
+        }
+        
+        function showForm(entity, action, item = null) {
+            let formHTML = `
+                <form id="${entity}-form">
+            `;
+            
+            if (entity === 'citas') {
+                formHTML += `
+                    <div class="form-group">
+                        <label for="clienteId">Cliente</label>
+                        <select class="form-control" id="clienteId" name="clienteId" required>
+                            <option value="">Seleccione un cliente</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="profesionalId">Profesional</label>
+                        <select class="form-control" id="profesionalId" name="profesionalId" required>
+                            <option value="">Seleccione un profesional</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="servicioId">Servicio</label>
+                        <select class="form-control" id="servicioId" name="servicioId" required>
+                            <option value="">Seleccione un servicio</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha">Fecha</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="hora">Hora</label>
+                        <input type="time" class="form-control" id="hora" name="hora" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="estado">Estado</label>
+                        <select class="form-control" id="estado" name="estado" required>
+                            <option value="Programada">Programada</option>
+                            <option value="Confirmada">Confirmada</option>
+                            <option value="Completada">Completada</option>
+                            <option value="Cancelada">Cancelada</option>
+                        </select>
+                    </div>
+                `;
+            } else if (entity === 'clientes') {
+                formHTML += `
+                    <div class="form-group">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="apellido">Apellido</label>
+                        <input type="text" class="form-control" id="apellido" name="apellido" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" class="form-control" id="telefono" name="telefono">
+                    </div>
+                `;
+            } else if (entity === 'profesionales') {
+                formHTML += `
+                    <div class="form-group">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="apellido">Apellido</label>
+                        <input type="text" class="form-control" id="apellido" name="apellido" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="especialidad">Especialidad</label>
+                        <input type="text" class="form-control" id="especialidad" name="especialidad" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="tel" class="form-control" id="telefono" name="telefono">
+                    </div>
+                `;
+            } else if (entity === 'servicios') {
+                formHTML += `
+                    <div class="form-group">
+                        <label for="nombre">Nombre</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="descripcion">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="precio">Precio</label>
+                        <input type="number" class="form-control" id="precio" name="precio" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="duracion">Duración (minutos)</label>
+                        <input type="number" class="form-control" id="duracion" name="duracion" required>
+                    </div>
+                `;
+            }
+            
+            formHTML += `
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-primary">${action === 'create' ? 'Crear' : 'Actualizar'}</button>
+                        <button type="button" id="btn-cancel" class="btn">Cancelar</button>
+                    </div>
+                </form>
+            `;
+            
+            formContainer.innerHTML = formHTML;
+            
+            // Rellenar formulario si estamos editando
+            if (action === 'edit' && item) {
+                fillForm(entity, item);
+            }
+            
+            // Cargar datos para selects si es necesario
+            if (entity === 'citas') {
+                loadSelectOptions();
+            }
+            
+            // Event listener para el formulario
+            document.getElementById(`${entity}-form`).addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitForm(entity, action, item ? item.id : null);
+            });
+            
+            // Event listener para cancelar
+            document.getElementById('btn-cancel').addEventListener('click', function() {
+                loadContent(entity, 'list');
+            });
+        }
+        
+        async function loadSelectOptions() {
+            // Cargar clientes para el select
+            const clientes = await fetchData('clientes');
+            if (clientes) {
+                const clienteSelect = document.getElementById('clienteId');
+                clientes.forEach(cliente => {
+                    const option = document.createElement('option');
+                    option.value = cliente.id;
+                    option.textContent = `${cliente.nombre} ${cliente.apellido}`;
+                    clienteSelect.appendChild(option);
+                });
+            }
+            
+            // Cargar profesionales para el select
+            const profesionales = await fetchData('profesionales');
+            if (profesionales) {
+                const profesionalSelect = document.getElementById('profesionalId');
+                profesionales.forEach(profesional => {
+                    const option = document.createElement('option');
+                    option.value = profesional.id;
+                    option.textContent = `${profesional.nombre} ${profesional.apellido} - ${profesional.especialidad}`;
+                    profesionalSelect.appendChild(option);
+                });
+            }
+            
+            // Cargar servicios para el select
+            const servicios = await fetchData('servicios');
+            if (servicios) {
+                const servicioSelect = document.getElementById('servicioId');
+                servicios.forEach(servicio => {
+                    const option = document.createElement('option');
+                    option.value = servicio.id;
+                    option.textContent = `${servicio.nombre} - $${servicio.precio}`;
+                    servicioSelect.appendChild(option);
+                });
+            }
+        }
+        
+        function fillForm(entity, item) {
+            if (entity === 'citas') {
+                document.getElementById('clienteId').value = item.clienteId || '';
+                document.getElementById('profesionalId').value = item.profesionalId || '';
+                document.getElementById('servicioId').value = item.servicioId || '';
+                document.getElementById('fecha').value = item.fecha ? item.fecha.split('T')[0] : '';
+                document.getElementById('hora').value = item.hora || '';
+                document.getElementById('estado').value = item.estado || '';
+            } else if (entity === 'clientes') {
+                document.getElementById('nombre').value = item.nombre || '';
+                document.getElementById('apellido').value = item.apellido || '';
+                document.getElementById('email').value = item.email || '';
+                document.getElementById('telefono').value = item.telefono || '';
+            } else if (entity === 'profesionales') {
+                document.getElementById('nombre').value = item.nombre || '';
+                document.getElementById('apellido').value = item.apellido || '';
+                document.getElementById('especialidad').value = item.especialidad || '';
+                document.getElementById('email').value = item.email || '';
+                document.getElementById('telefono').value = item.telefono || '';
+            } else if (entity === 'servicios') {
+                document.getElementById('nombre').value = item.nombre || '';
+                document.getElementById('descripcion').value = item.descripcion || '';
+                document.getElementById('precio').value = item.precio || '';
+                document.getElementById('duracion').value = item.duracion || '';
+            }
+        }
+        
+        async function submitForm(entity, action, id = null) {
+            const form = document.getElementById(`${entity}-form`);
+            const formData = new FormData(form);
+            const data = {};
+            
+            for (let [key, value] of formData.entries()) {
+                data[key] = value;
+            }
+            
+            let success = false;
+            
+            if (action === 'create') {
+                const result = await postData(entity, data);
+                success = result !== null;
+            } else if (action === 'edit') {
+                data.id = id;
+                success = await putData(`${entity}/${id}`, data);
+            }
+            
+            if (success) {
+                loadContent(entity, 'list');
+            }
+        }
+        
+        async function editItem(entity, id) {
+            const item = items.find(item => item.id == id);
+            if (item) {
+                currentAction = 'edit';
+                showForm(entity, 'edit', item);
+            }
+        }
+        
+        function confirmDeleteItem(entity, id) {
+            itemToDelete = { entity, id };
+            confirmModal.classList.remove('hidden');
+        }
+        
+        async function deleteItem(entity, id) {
+            const success = await deleteData(`${entity}/${id}`);
+            
+            if (success) {
+                loadContent(entity, 'list');
+            }
+        }
+        
+        // Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            loadContent('citas', 'list');
+        });
+    </script>
+</body>
+</html>
